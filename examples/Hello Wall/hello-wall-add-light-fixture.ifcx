@@ -10,6 +10,7 @@
     { "uri": "https://ifcx.dev/@standards.buildingsmart.org/ifc/core/ifc@v5a.ifcx" },
     { "uri": "https://ifcx.dev/@openusd.org/usd@v1.ifcx" }
   ],
+  "schemas": {},
   "data": [
     {
       "path": "93791d5d-5beb-437b-b8ec-2f1f0ba4bf3b",
@@ -29,13 +30,28 @@
         "bsi::ifc::class": {
           "code": "IfcLightFixture",
           "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcLightFixture"
-        },
+        }
+      }
+    },
+    {
+      "path": "3f2a20f7-7f72-4a7a-8fe9-3a8b8a01f2b7",
+      "attributes": {
         "bsi::ifc::presentation::diffuseColor": [
           1.0,
           0.8,
           0.2
-        ],
-        "bsi::ifc::presentation::opacity": 1,
+        ]
+      }
+    },
+    {
+      "path": "3f2a20f7-7f72-4a7a-8fe9-3a8b8a01f2b7",
+      "attributes": {
+        "bsi::ifc::presentation::opacity": 1
+      }
+    },
+    {
+      "path": "3f2a20f7-7f72-4a7a-8fe9-3a8b8a01f2b7",
+      "attributes": {
         "usd::xformop": {
           "transform": [
             [

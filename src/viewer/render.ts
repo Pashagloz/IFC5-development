@@ -446,7 +446,7 @@ function handleClick(prim, pathMapping, root) {
   container.innerHTML = "";
   const table = document.createElement("table");
   table.setAttribute("border", "0");
-  const entries = [["name", prim.name], ...Object.entries(prim.attributes).filter(([k, _]) => !k.startsWith('__internal_'))];
+  const entries = [["name", prim.name], ...Object.entries(prim.attributes || {}).filter(([k, _]) => !k.startsWith('__internal_'))];
   const format = (value) => {
     if (Array.isArray(value)) {
       let N = document.createElement('span');

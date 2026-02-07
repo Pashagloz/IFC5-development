@@ -27,7 +27,7 @@ export function LoadIfcxFile(file: IfcxFile, checkSchemas: boolean = true, creat
     let compositionNodes = FlattenCompositionInput(inputNodes);
 
     try {
-        if (checkSchemas)
+        if (checkSchemas && file.schemas)
         {
             Validate(file.schemas, compositionNodes);
         }
@@ -166,7 +166,7 @@ export function Federate(files: IfcxFile[])
     };
 
     files.forEach((file) => {
-        Object.keys(file.schemas).forEach((schemaID) => result.schemas[schemaID] = file.schemas[schemaID]);
+        Object.keys(file.schemas || {}).forEach((schemaID) => result.schemas[schemaID] = file.schemas[schemaID]);
     })
 
     files.forEach((file) => {
@@ -221,7 +221,7 @@ function Prune(file: IfcxFile, deleteEmpty: boolean = false)
     let result: IfcxFile = {
         header: file.header,
         imports: [],
-        schemas: file.schemas,
+        schemas: file.schemas || {},
         data: []
     };
 

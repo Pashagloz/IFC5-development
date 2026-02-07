@@ -199,23 +199,80 @@
         .error-modal {
             display: none;
             position: absolute;
-            left: 15vw;
-            right: 15vw;
-            top: 15vw;
-            bottom: 15vw;
+            left: 10vw;
+            right: 10vw;
+            top: 10vh;
+            bottom: 10vh;
             border: solid 2px red;
+            border-radius: 6px;
             background-color: #fee;
+            overflow-y: auto;
+        }
+
+        .error-modal .error-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1em 1.5em;
+            background-color: #fdd;
+            border-bottom: solid 1px #ecc;
+            cursor: default;
+        }
+
+        .error-modal .error-header .error-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #a00;
+        }
+
+        .error-modal .error-header .error-title::before {
+            content: '\26A0 \A0';
+        }
+
+        .error-modal .error-close {
             cursor: pointer;
-            font-size: 150%;
+            font-size: 1.5em;
+            color: #a00;
+            background: none;
+            border: none;
+            padding: 0 0.3em;
+            height: auto;
+            line-height: 1;
+        }
+
+        .error-modal .error-close:hover {
+            color: #f00;
         }
 
         .error-modal .message {
-            padding: 5vw;
-            display: inline-block;
+            padding: 1.5em;
+            font-size: 1.1em;
+            color: #600;
         }
 
-        .error-modal .message::before {
-            content: '\26A0 \A0 \A0';
+        .error-modal .stack-trace {
+            padding: 0 1.5em 1.5em;
+        }
+
+        .error-modal .stack-trace summary {
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 0.5em;
+        }
+
+        .error-modal .stack-trace pre {
+            background: #2b2b2b;
+            color: #ddd;
+            padding: 1em;
+            border-radius: 4px;
+            font-size: 0.75em;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+            max-height: 40vh;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -248,8 +305,18 @@
             This software is freely available for use, modification, and distribution under the MIT License, provided the original copyright notice and license terms are included.
             <a href="https://github.com/buildingSMART/IFC5-development/">https://github.com/buildingSMART/IFC5-development/</a>
         </div>
-        <div class="error-modal" onclick="document.querySelector('.error-modal').style.display = 'none';">
-            <span class="message"></span>
+        <div class="error-modal">
+            <div class="error-header">
+                <span class="error-title">Error</span>
+                <button class="error-close" onclick="document.querySelector('.error-modal').style.display = 'none';">&times;</button>
+            </div>
+            <div class="message"></div>
+            <div class="stack-trace">
+                <details>
+                    <summary>Stack trace</summary>
+                    <pre></pre>
+                </details>
+            </div>
         </div>
     </div>
     <script type="importmap">
@@ -263,6 +330,31 @@
     <script type="module">
         import addModel from './render.mjs';
 
+        function showError(error, context) {
+            const modal = document.querySelector('.error-modal');
+            const messageEl = modal.querySelector('.message');
+            const stackEl = modal.querySelector('.stack-trace pre');
+
+            const errorName = error.name || 'Error';
+            const errorMessage = error.message || String(error);
+
+            modal.querySelector('.error-title').textContent = context
+                ? `${errorName} — ${context}`
+                : errorName;
+
+            messageEl.textContent = errorMessage;
+
+            if (error.stack) {
+                stackEl.textContent = error.stack;
+                modal.querySelector('.stack-trace').style.display = '';
+            } else {
+                modal.querySelector('.stack-trace').style.display = 'none';
+            }
+
+            modal.style.display = 'block';
+            console.error(`[${context || 'Error'}]`, error);
+        }
+
         document.querySelector('#fileForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
@@ -274,13 +366,11 @@
                     try {
                         json = JSON.parse(e.target.result);
                     } catch(e) {
-                        document.querySelector('.error-modal .message').innerHTML = e.message;
-                        document.querySelector('.error-modal').style.display = 'block';
+                        showError(e, `Parsing ${file.name}`);
                     }
                     if (json) {
                         addModel(file.name, json).catch(e => {
-                            document.querySelector('.error-modal .message').innerHTML = e.message;
-                            document.querySelector('.error-modal').style.display = 'block';
+                            showError(e, `Loading ${file.name}`);
                         });
                     }
                 };
@@ -290,15 +380,15 @@
 
         document.querySelector('#urlForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            fetch(event.target.urlInput.value)
+            const url = event.target.urlInput.value;
+            fetch(url)
                 .then(r => r.json())
                 .then((j) => {
-                    const name = event.target.urlInput.value.split('/').reverse()[0];
+                    const name = url.split('/').reverse()[0];
                     addModel(name, j);
                 })
                 .catch(e => {
-                    document.querySelector('.error-modal .message').innerHTML = e.message;
-                    document.querySelector('.error-modal').style.display = 'block';
+                    showError(e, `Fetching ${url}`);
                 });
         });
     </script>
